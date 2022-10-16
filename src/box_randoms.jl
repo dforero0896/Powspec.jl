@@ -33,7 +33,7 @@ function CATA(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},AbstractVec
             rand::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},AbstractVector{T}}, Tuple{AbstractVector{T}, AbstractVector{T},AbstractVector{T}}}, 
             rand_w::Tuple{AbstractArray{T}, AbstractArray{T}},
     ) where T <: AbstractFloat
-    cat = CATA(2)
+    cat = CATA(length(data))
     for i in 1:2
         data_ptr, sumw2_data, wdata = build_catalog(data[i], data_w[i], true)
         rand_ptr, sumw2_rand, wrand = build_catalog(rand[i], rand_w[i], true)
@@ -122,6 +122,13 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     out[:w_rand_objects] = unsafe_load(cat.wrand, 1)
     out[:shot_noise] = unsafe_load(cat.shot, 1)
     out[:normalisation] = unsafe_load(cat.norm, 1)
+
+    ccall((:powspec_destroy, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+            Ptr{Cvoid},
+            (Ptr{PK},),
+            pk)
+
+            
     out
 end #func
 
@@ -190,6 +197,13 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     out[:w_rand_objects] = unsafe_wrap(Vector{Cdouble}, cat.wrand, 2; own = true)
     out[:shot_noise] = unsafe_wrap(Vector{Cdouble}, cat.shot, 2, own = true)
     out[:normalisation] = unsafe_wrap(Vector{Cdouble}, cat.norm, 2, own = true)
+
+    ccall((:powspec_destroy, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+            Ptr{Cvoid},
+            (Ptr{PK},),
+            pk)
+
+            
     out
 end #func
 
