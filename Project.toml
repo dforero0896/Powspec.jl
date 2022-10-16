@@ -3,6 +3,9 @@ uuid = "55562a56-caf1-476b-9a92-73f2d3f6ab1b"
 authors = ["Daniel Forero-Sanchez"]
 version = "0.1.0"
 
+[deps]
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+
 [compat]
 julia = "1"
 
