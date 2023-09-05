@@ -85,13 +85,13 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
     cat = CATA(data, data_w, data_fkp, data_nz, rand, rand_w, rand_fkp, rand_nz)
     if precision == :single
-        pk = ccall((:compute_pk, "/global/homes/d/dforero/codes/libpowspec/libpowspec_f.so"), 
+        pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec_f.so"), 
                     Ptr{PK}, 
                     (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), 
                     cat, save_out, true, int_cache, argc, argv)
         
     elseif precision == :double
-        pk = ccall((:compute_pk, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+        pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), 
                     Ptr{PK}, 
                     (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), 
                     cat, save_out, true, int_cache, argc, argv)
@@ -108,7 +108,7 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     multipoles = zeros(T, nl, nbin)
 
     #copy_pk_results(PK *pk, double *k, double, *kavg, double *kedge, int *nmodes, double *auto_multipole1, double *auto_multipole2, double *cross_multipole)
-    ccall((:copy_pk_results, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+    ccall((:copy_pk_results, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), 
           Ptr{Cvoid}, 
           (Ptr{PK}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}),
           pk, vec(k), vec(kavg), vec(kmin), vec(kmax), vec(nmodes), vec(multipoles), C_NULL, C_NULL)
@@ -159,10 +159,10 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
     cat = CATA(data, data_w, data_fkp, data_nz, rand, rand_w, rand_fkp, rand_nz)
     if precision == :single
-        pk = ccall((:compute_pk, "/global/homes/d/dforero/codes/libpowspec/libpowspec_f.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_auto & save_cross, true, int_cache, argc, argv)
+        pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec_f.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_auto & save_cross, true, int_cache, argc, argv)
         
     elseif precision == :double
-        pk = ccall((:compute_pk, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_cross & save_cross, true, int_cache, argc, argv)
+        pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_cross & save_cross, true, int_cache, argc, argv)
         
     end #if
     nbin = unsafe_load(int_cache, 1)
@@ -179,7 +179,7 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     
 
     #copy_pk_results(PK *pk, double *k, double, *kavg, double *kedge, int *nmodes, double *auto_multipole1, double *auto_multipole2, double *cross_multipole)
-    ccall((:copy_pk_results, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+    ccall((:copy_pk_results, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), 
           Ptr{Cvoid}, 
           (Ptr{PK}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}),
           pk, vec(k), vec(kavg), vec(kmin), vec(kmax), vec(nmodes), vec(auto_multipoles1), vec(auto_multipoles2), vec(cross_multipoles))
