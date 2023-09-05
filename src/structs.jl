@@ -47,12 +47,12 @@ function build_catalog(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstract
     sumw2_vec = zeros(T, 2)
     wdata = zeros(T,1)
     if is_sim
-        out_ptr = ccall((:build_catalog_sim, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+        out_ptr = ccall((:build_catalog_sim, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), 
                 Ptr{DATA},
                 (Csize_t, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}),
                 ndata, sumw2_vec, wdata, data[1], data[2], data[3], data_w)
     else
-        out_ptr = ccall((:build_catalog_lc, "/global/homes/d/dforero/codes/libpowspec/libpowspec.so"), 
+        out_ptr = ccall((:build_catalog_lc, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), 
                 Ptr{DATA},
                 (Csize_t, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}, Ptr{T}),
                 ndata, sumw2_vec, wdata, data[1], data[2], data[3], data_w, data_fkp, data_nz)
