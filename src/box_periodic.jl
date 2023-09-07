@@ -94,13 +94,14 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     save_cross = output_auto != nothing
     
     auto_output = save_auto ? "--auto=[$(output_auto[1]), $(output_auto[2])]" : "--auto=[test1.dat, test1.dat]"
-    auto_output_ptr = Base.unsafe_convert(Cstring, auto_output)
+    #auto_output_ptr = Base.unsafe_convert(Cstring, auto_output)
+    auto_output_ptr = Cstring(pointer(auto_output))
     cross_output = save_cross ? "--cross=$output_cross" : "--cross=cross.dat"
-    cross_output_ptr = Base.unsafe_convert(Cstring, cross_output)
+    cross_output_ptr = Cstring(pointer(cross_output))
 
 
     conf_file = "--conf=$powspec_conf_file"
-    conf_file_ptr = Base.unsafe_convert(Cstring, conf_file)
+    conf_file_ptr = Cstring(pointer(conf_file))
 
     argc::Cint = 4
     argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, auto_output_ptr, cross_output_ptr]
