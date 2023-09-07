@@ -40,7 +40,7 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     argc::Cint = 3
     argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, test_output_ptr]
     argv = Base.unsafe_convert(Ptr{Cstring}, argv_vec)
-    
+    @show argv
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
     cat = CATA(data, data_w)
     if precision == :single
@@ -94,14 +94,15 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     save_cross = output_auto != nothing
     
     auto_output = save_auto ? "--auto=[$(output_auto[1]), $(output_auto[2])]" : "--auto=[test1.dat, test1.dat]"
+    @show auto_output
     #auto_output_ptr = Base.unsafe_convert(Cstring, auto_output)
-    auto_output_ptr = Cstring(pointer(auto_output))
+    auto_output_ptr = Cstring(pointer(deepcopy(auto_output)))
     cross_output = save_cross ? "--cross=$output_cross" : "--cross=cross.dat"
-    cross_output_ptr = Cstring(pointer(cross_output))
+    cross_output_ptr = Cstring(pointer(deepcopy(cross_output)))
 
 
     conf_file = "--conf=$powspec_conf_file"
-    conf_file_ptr = Cstring(pointer(conf_file))
+    conf_file_ptr = Cstring(pointer(deepcopy(conf_file)))
 
     argc::Cint = 4
     argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, auto_output_ptr, cross_output_ptr]
@@ -109,12 +110,16 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
     cat = CATA(data, data_w)
+    
     if precision == :single
         pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec_f.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_auto & save_cross, false, int_cache, argc, argv)
         
     elseif precision == :double
         pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_cross & save_cross, false, int_cache, argc, argv)
         
+    end #if
+    if pk == C_NULL
+        error("C library returned NULL.")
     end #if
     nbin = unsafe_load(int_cache, 1)
     nl = unsafe_load(int_cache, 2)

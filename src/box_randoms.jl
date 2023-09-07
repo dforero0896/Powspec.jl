@@ -68,11 +68,11 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     save_out = output_file != nothing
     
     test_output = save_out ? "--auto=$output_file" : "--auto=test.dat"
-    test_output_ptr = Base.unsafe_convert(Cstring, test_output)
+    test_output_ptr = Base.unsafe_convert(Cstring, deepcopy(test_output))
 
 
     conf_file = "--conf=$powspec_conf_file"
-    conf_file_ptr = Base.unsafe_convert(Cstring, conf_file)
+    conf_file_ptr = Base.unsafe_convert(Cstring, deepcopy(conf_file))
 
     argc::Cint = 3
     argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, test_output_ptr]
@@ -92,6 +92,9 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
                     (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), 
                     cat, save_out, true, int_cache, argc, argv)
         
+    end #if
+    if pk == C_NULL
+        error("C library returned NULL.")
     end #if
     nbin = unsafe_load(int_cache, 1)
     nl = unsafe_load(int_cache, 2)
@@ -143,13 +146,13 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     save_cross = output_auto != nothing
     
     auto_output = save_auto ? "--auto=[$(output_auto[1]), $(output_auto[2])]" : "--auto=[test1.dat, test1.dat]"
-    auto_output_ptr = Base.unsafe_convert(Cstring, auto_output)
+    auto_output_ptr = Base.unsafe_convert(Cstring, deepcopy(auto_output))
     cross_output = save_cross ? "--cross=$output_cross" : "--cross=cross.dat"
-    cross_output_ptr = Base.unsafe_convert(Cstring, cross_output)
+    cross_output_ptr = Base.unsafe_convert(Cstring, deepcopy(cross_output))
 
 
     conf_file = "--conf=$powspec_conf_file"
-    conf_file_ptr = Base.unsafe_convert(Cstring, conf_file)
+    conf_file_ptr = Base.unsafe_convert(Cstring, deepcopy(conf_file))
 
     argc::Cint = 4
     argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, auto_output_ptr, cross_output_ptr]
@@ -163,6 +166,9 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     elseif precision == :double
         pk = ccall((:compute_pk, "$(ENV["LIBPOWSPEC_PATH"])/libpowspec.so"), Ptr{PK}, (Ref{CATA}, Cint, Cint, Ptr{Cint}, Cint, Ptr{Cstring}), cat, save_cross & save_cross, true, int_cache, argc, argv)
         
+    end #if
+    if pk == C_NULL
+        error("C library returned NULL.")
     end #if
     nbin = unsafe_load(int_cache, 1)
     nl = unsafe_load(int_cache, 2)
