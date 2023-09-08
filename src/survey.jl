@@ -79,7 +79,7 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
     conf_file_ptr = Base.unsafe_convert(Cstring, deepcopy(conf_file))
 
     argc::Cint = 3
-    argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, test_output_ptr]
+    argv_vec = [Base.unsafe_convert(Cstring, deepcopy("POWSPEC")), conf_file_ptr, test_output_ptr]
     argv = Base.unsafe_convert(Ptr{Cstring}, argv_vec)
     
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
@@ -98,7 +98,7 @@ function power_spectrum(data::Tuple{AbstractVector{T}, AbstractVector{T},Abstrac
         
     end #if
     if pk == C_NULL
-        error("C library returned NULL.")
+        error("Could not compute power spectra")
     end #if
     nbin = unsafe_load(int_cache, 1)
     nl = unsafe_load(int_cache, 2)
@@ -156,7 +156,7 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
     conf_file_ptr = Base.unsafe_convert(Cstring, deepcopy(conf_file))
 
     argc::Cint = 4
-    argv_vec = [Base.unsafe_convert(Cstring, "POWSPEC"), conf_file_ptr, auto_output_ptr, cross_output_ptr]
+    argv_vec = [Base.unsafe_convert(Cstring, deepcopy("POWSPEC")), conf_file_ptr, auto_output_ptr, cross_output_ptr]
     argv = Base.unsafe_convert(Ptr{Cstring}, argv_vec)
     
     int_cache = Ptr{Cint}(Base.Libc.calloc(2, sizeof(Cint)))
@@ -169,7 +169,7 @@ function power_spectrum(data::Tuple{Tuple{AbstractVector{T}, AbstractVector{T},A
         
     end #if
     if pk == C_NULL
-        error("C library returned NULL.")
+        error("Could not compute power spectra")
     end #if
     nbin = unsafe_load(int_cache, 1)
     nl = unsafe_load(int_cache, 2)

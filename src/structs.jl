@@ -86,3 +86,8 @@ function CATA(num::Int)
     end #for    
     cat
 end #func
+
+cstring_vector(s::String) = GC.@preserve s begin
+    p = Base.unsafe_convert(Cstring, s) # throws if s contains NUL
+    copy(unsafe_wrap(Array, Ptr{UInt8}(p), sizeof(s)+1)) # copy the data + NUL
+end
